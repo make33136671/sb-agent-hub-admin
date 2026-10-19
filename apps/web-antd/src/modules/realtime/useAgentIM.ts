@@ -8,7 +8,7 @@ import {
   type Message,
   type MessageClassification,
   type ReadReceiptInfo,
-} from '@sb/realtime-core';
+} from '@saiboniuma/realtime-core';
 
 import { playNewMessage, playSystemNotification } from '#/utils/notification-sound';
 

@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import dayjs from 'dayjs';
 import { IconifyIcon } from '@vben/icons';
 
-import { MessageStatus, MessageType, type Message } from '@sb/realtime-core';
+import { MessageStatus, MessageType, type Message } from '@saiboniuma/realtime-core';
 
 const props = defineProps<{
   message: Message;

@@ -1,4 +1,6 @@
 ﻿<script lang="ts" setup>
+import type { UploadProps } from 'ant-design-vue';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { onMounted, ref } from 'vue';
@@ -14,6 +16,7 @@ import {
   Space,
   Tag,
   Tooltip,
+  Upload,
 } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -27,6 +30,7 @@ import {
   getSettingByKey,
   postBackup,
   postDel,
+  postImport,
   postRestart,
   postRestore,
   postUploadToCloud,
@@ -100,6 +104,35 @@ async function handleBackup() {
     backing.value = false;
   }
 }
+
+// ============ 上传导入（本地备份文件 → 服务器备份目录） ============
+const importing = ref(false);
+
+const beforeImportUpload: UploadProps['beforeUpload'] = (file) => {
+  const name = file.name.toLowerCase();
+  if (!name.endsWith('.zip') && !name.endsWith('.sql')) {
+    message.error('仅支持 .zip（系统导出的备份包）或 .sql 文件');
+    return false;
+  }
+  Modal.confirm({
+    title: `确认上传备份 ${file.name}？`,
+    content:
+      '上传后仅写入备份记录，不会覆盖当前数据库；如需还原请上传后在列表点击「恢复」。',
+    okText: '上传',
+    cancelText: '取消',
+    onOk: async () => {
+      importing.value = true;
+      try {
+        await postImport(file as File);
+        gridApi.reload();
+      } finally {
+        importing.value = false;
+      }
+    },
+  });
+  // 阻止 antd 自动上传，走上面的手动流程
+  return false;
+};
 
 // ============ 下载 ============
 function handleDownload(row: any) {
@@ -370,7 +403,7 @@ onMounted(() => {
             无法获取数据库信息
           </div>
 
-          <div style="margin-top: 16px">
+          <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap">
             <Button
               type="primary"
               :loading="backing"
@@ -379,6 +412,23 @@ onMounted(() => {
             >
               备份数据库
             </Button>
+            <Upload
+              :before-upload="beforeImportUpload"
+              :show-upload-list="false"
+              accept=".zip,.sql"
+              :disabled="importing"
+            >
+              <Button :loading="importing">上传备份文件</Button>
+            </Upload>
+          </div>
+          <div
+            style="
+              margin-top: 8px;
+              font-size: 12px;
+              color: var(--ant-color-text-tertiary);
+            "
+          >
+            上传本地备份（.zip 内含 .sql 或裸 .sql）只做导入入库，不覆盖当前数据库；上传后在列表点「恢复」才会还原。
           </div>
         </Card>
       </template>

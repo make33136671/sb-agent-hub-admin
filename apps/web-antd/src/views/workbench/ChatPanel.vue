@@ -3,7 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 
 import { Alert, Button, Empty, Input, Popover as APopover, message } from 'ant-design-vue';
 import { IconifyIcon } from '@vben/icons';
-import { isDisplayableSystemMessage, getSystemMessageLabel } from '@sb/realtime-core';
+import { isDisplayableSystemMessage, getSystemMessageLabel } from '@saiboniuma/realtime-core';
 import dayjs from 'dayjs';
 
 import { useWorkbenchStore } from './store';

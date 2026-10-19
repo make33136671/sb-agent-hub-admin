@@ -46,6 +46,16 @@ export async function postUploadToCloud(id: number) {
   return api.post('/Database/UploadToCloud', formData);
 }
 
+/** 上传本地备份文件（.zip 内含 .sql 或裸 .sql）导入到备份列表，仅入库不恢复 */
+export async function postImport(file: File, remark?: string) {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (remark) formData.append('remark', remark);
+  return api.post('/Database/Import', formData, {
+    timeout: 30 * 60 * 1000,
+  });
+}
+
 /** 按 key 查单条系统设置（用于读 backup_upload_enabled 等开关） */
 export async function getSettingByKey(key: string) {
   return api.get('/SystemSetting/GetByKey', { params: { key } });
